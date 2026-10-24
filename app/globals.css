@@ -1,26 +1,119 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-bg: #FAF7F2;
+  --color-brand-surface: #FFFFFF;
+  --color-brand-surface-subtle: #F6F2EA;
+  --color-brand-ink: #1F1B16;
+  --color-brand-muted: #6B6459;
+  --color-brand-subtle: #8E877C;
+  --color-brand-border: #E6DFD3;
+  --color-brand-border-dark: #D4CBBD;
+
+  --color-pine: #1F4D3A;
+  --color-pine-hover: #183E2F;
+  --color-pine-light: #EEF4F0;
+  --color-pine-dark: #122F24;
+
+  --color-terracotta: #C2603A;
+  --color-terracotta-hover: #A64E2D;
+  --color-terracotta-light: #FAF0EC;
+
+  --color-success: #2D6A4F;
+  --color-success-light: #EBF5F0;
+  --color-warning: #B45309;
+  --color-warning-light: #FEF3C7;
+  --color-error: #B91C1C;
+  --color-error-light: #FEE2E2;
+  --color-info: #1E3A8A;
+  --color-info-light: #EFF6FF;
+
+  --font-serif: var(--font-serif), Georgia, serif;
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+  --font-mono: var(--font-mono), monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FAF7F2;
+  --foreground: #1F1B16;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: #E6DFD3;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-serif), Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+/* Tabular figures for pricing and statistics */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom DayPicker style overrides to seamlessly match editorial aesthetic */
+.rdp-root {
+  --rdp-accent-color: #1F4D3A;
+  --rdp-accent-background-color: #EEF4F0;
+  --rdp-range_start-color: #FFFFFF;
+  --rdp-range_start-background: #1F4D3A;
+  --rdp-range_end-color: #FFFFFF;
+  --rdp-range_end-background: #1F4D3A;
+  --rdp-range_middle-background-color: #EEF4F0;
+  --rdp-range_middle-color: #1F4D3A;
+  margin: 0;
+  font-family: inherit;
+}
+
+.rdp-day_button {
+  border-radius: 6px !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  transition: all 0.15s ease-in-out;
+}
+
+.rdp-day_button:hover:not([disabled]) {
+  background-color: #EEF4F0 !important;
+  color: #1F4D3A !important;
+}
+
+/* Subtle image hover zoom */
+.hover-zoom-img {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-zoom-container:hover .hover-zoom-img {
+  transform: scale(1.03);
+}
+
+/* Accessibility skip link */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 12px;
+  background: #1F4D3A;
+  color: #FFFFFF;
+  padding: 8px 16px;
+  z-index: 100;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: top 0.2s ease;
+}
+.skip-to-content:focus {
+  top: 12px;
 }
