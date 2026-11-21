@@ -5,6 +5,7 @@ from app.models.room import RoomType
 from app.models.booking import Booking, BookingStatusEvent
 from app.models.review import Review
 from app.models.favorite import Favorite
+from app.models.destination import Destination
 
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "BookingStatusEvent",
     "Review",
     "Favorite",
+    "Destination"
 ]

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class HotelLocationSchema(BaseModel):
@@ -45,8 +45,7 @@ class HotelRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class HotelCreate(BaseModel):
@@ -97,5 +96,4 @@ class DestinationRead(BaseModel):
     best_season: str
     coordinates: dict
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -184,10 +184,16 @@ async def get_booking(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    try:
+        booking_uuid = UUID(id)
+        where_clause = (Booking.id == booking_uuid) | (Booking.booking_reference == id)
+    except ValueError:
+        where_clause = (Booking.booking_reference == id)
+
     query = (
         select(Booking)
         .options(selectinload(Booking.status_history))
-        .where((Booking.id.cast(str) == id) | (Booking.booking_reference == id))
+        .where(where_clause)
     )
     booking = (await db.execute(query)).scalar_one_or_none()
     if not booking:
@@ -206,10 +212,16 @@ async def cancel_booking(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    try:
+        booking_uuid = UUID(id)
+        where_clause = (Booking.id == booking_uuid) | (Booking.booking_reference == id)
+    except ValueError:
+        where_clause = (Booking.booking_reference == id)
+
     query = (
         select(Booking)
         .options(selectinload(Booking.status_history))
-        .where((Booking.id.cast(str) == id) | (Booking.booking_reference == id))
+        .where(where_clause)
     )
     booking = (await db.execute(query)).scalar_one_or_none()
     if not booking:

@@ -4,6 +4,7 @@ from sqlalchemy import select
 from app.core.database import AsyncSessionLocal
 from app.core.security import get_password_hash
 from app.models.booking import Booking, BookingStatusEvent
+from app.models.destination import Destination
 from app.models.favorite import Favorite
 from app.models.hotel import Hotel
 from app.models.review import Review
@@ -28,7 +29,7 @@ async def seed():
             await session.commit()
 
         # Clean tables in proper FK order
-        for model in [BookingStatusEvent, Booking, Review, Favorite, RoomType, Hotel, User]:
+        for model in [BookingStatusEvent, Booking, Review, Favorite, RoomType, Hotel, Destination, User]:
             records = (await session.execute(select(model))).scalars().all()
             for r in records:
                 await session.delete(r)
@@ -550,8 +551,69 @@ async def seed():
         fav_1 = Favorite(user_id=clara_user.id, hotel_id=sora_hotel.id)
         session.add(fav_1)
 
+        # 7. Destinations
+        destinations_data = [
+            {
+                "slug": "kyoto",
+                "name": "Kyoto",
+                "country": "Japan",
+                "tagline": "Ancient cedar machiyas and silent stone gardens.",
+                "description": "Japan's imperial capital offers timeless wooden architecture, hidden bamboo paths, and geothermally fed onsen sanctuaries.",
+                "hero_image": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80",
+                "hotel_count": 2,
+                "best_season": "October – April",
+                "coordinates": {"lat": 35.0116, "lng": 135.7681},
+            },
+            {
+                "slug": "scottish-highlands",
+                "name": "Scottish Highlands",
+                "country": "United Kingdom",
+                "tagline": "Heavy Douglas fir timbers, peat hearths, and glass lochs.",
+                "description": "Dramatic heather-clad mountains and secluded pine forests, offering roll-top baths, single-malt cellars, and silent waters.",
+                "hero_image": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=1200&q=80",
+                "hotel_count": 2,
+                "best_season": "May – September",
+                "coordinates": {"lat": 57.3229, "lng": -4.4244},
+            },
+            {
+                "slug": "big-sur",
+                "name": "Big Sur",
+                "country": "United States",
+                "tagline": "Cantilevered cedar decks above crashing Pacific surf.",
+                "description": "Suspended between coastal redwoods and dramatic sea cliffs along California's rugged Highway 1.",
+                "hero_image": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
+                "hotel_count": 1,
+                "best_season": "September – November",
+                "coordinates": {"lat": 36.2704, "lng": -121.8081},
+            },
+            {
+                "slug": "amalfi-coast",
+                "name": "Amalfi Coast",
+                "country": "Italy",
+                "tagline": "Travertine terraces over the turquoise Tyrrhenian Sea.",
+                "description": "Lemon orchard terraces, majolica tile villas, and cliffside hideaways nestled into sheer Mediterranean cliffs.",
+                "hero_image": "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80",
+                "hotel_count": 2,
+                "best_season": "April – October",
+                "coordinates": {"lat": 40.6333, "lng": 14.6029},
+            },
+            {
+                "slug": "santorini",
+                "name": "Santorini",
+                "country": "Greece",
+                "tagline": "Volcanic cliffside caves sculpted with minimalist Aegean grace.",
+                "description": "Whitewashed pumice stone cave suites, private plunge pools, and uninterrupted caldera sunset horizons.",
+                "hero_image": "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80",
+                "hotel_count": 1,
+                "best_season": "May – October",
+                "coordinates": {"lat": 36.3932, "lng": 25.4615},
+            },
+        ]
+        for dest_dict in destinations_data:
+            session.add(Destination(**dest_dict))
+
         await session.commit()
-        print("✅ Seeding completed successfully with 8 hotels, rooms, bookings, reviews, and users!")
+        print("✅ Seeding completed successfully with 8 hotels, destinations, rooms, bookings, reviews, and users!")
 
 
 if __name__ == "__main__":
