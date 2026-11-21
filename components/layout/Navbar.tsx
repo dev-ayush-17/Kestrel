@@ -24,6 +24,7 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/Dropdown";
 import { useAuthStore } from "@/lib/stores/authStore";
+import { login } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export const Navbar: React.FC = () => {
@@ -39,27 +40,49 @@ export const Navbar: React.FC = () => {
     { label: "Contact", href: "/contact" },
   ];
 
-  const handleQuickSwitchRole = (role: "guest" | "customer" | "admin") => {
+  const handleQuickSwitchRole = async (role: "guest" | "customer" | "admin") => {
     if (role === "guest") {
       logout();
     } else if (role === "customer") {
-      setUser({
-        id: "demo-user-1",
-        email: "clara.oswald@example.com",
-        full_name: "Clara Oswald",
-        role: "customer",
-        avatar_url:
-          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
-      });
+      try {
+        const tokens = await login({ email: "clara.oswald@example.com", password: "password123" });
+        setUser({
+          id: tokens.user.id,
+          email: tokens.user.email,
+          full_name: tokens.user.full_name,
+          role: "customer",
+          avatar_url: tokens.user.avatar_url,
+        }, tokens.access_token);
+      } catch {
+        setUser({
+          id: "demo-user-1",
+          email: "clara.oswald@example.com",
+          full_name: "Clara Oswald",
+          role: "customer",
+          avatar_url:
+            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+        });
+      }
     } else {
-      setUser({
-        id: "demo-admin-1",
-        email: "admin@kestrelstays.com",
-        full_name: "Alexander Vance",
-        role: "admin",
-        avatar_url:
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
-      });
+      try {
+        const tokens = await login({ email: "admin@kestrelstays.com", password: "admin123" });
+        setUser({
+          id: tokens.user.id,
+          email: tokens.user.email,
+          full_name: tokens.user.full_name,
+          role: "admin",
+          avatar_url: tokens.user.avatar_url,
+        }, tokens.access_token);
+      } catch {
+        setUser({
+          id: "demo-admin-1",
+          email: "admin@kestrelstays.com",
+          full_name: "Alexander Vance",
+          role: "admin",
+          avatar_url:
+            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+        });
+      }
     }
   };
 

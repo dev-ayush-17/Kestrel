@@ -292,3 +292,19 @@ async def update_user_status(
     await db.commit()
     await db.refresh(user)
     return UserRead.model_validate(user)
+
+
+@router.patch("/users/{user_id}/toggle-active", response_model=UserRead)
+async def toggle_user_active(
+    user_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Toggle a user's active/suspended state without requiring a request body."""
+    user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    user.is_active = not user.is_active
+    await db.commit()
+    await db.refresh(user)
+    return UserRead.model_validate(user)

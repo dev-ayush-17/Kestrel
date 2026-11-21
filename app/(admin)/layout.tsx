@@ -8,7 +8,9 @@ export default function AdminLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-brand-surface-subtle/50">
-      <AdminSidebar />
+      <React.Suspense fallback={<div className="w-full lg:w-64 min-h-screen bg-brand-surface border-r border-brand-border" />}>
+        <AdminSidebar />
+      </React.Suspense>
       <div className="flex-1 min-w-0 flex flex-col min-h-screen">
         <header className="h-16 border-b border-brand-border bg-brand-surface px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">

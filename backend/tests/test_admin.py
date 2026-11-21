@@ -206,3 +206,33 @@ async def test_admin_review_moderation(client: httpx.AsyncClient, admin_token: s
             )
             assert mod_res.status_code == 200
             assert mod_res.json()["moderation_status"] == "approved"
+
+
+@pytest.mark.asyncio
+async def test_admin_toggle_active_endpoint(client: httpx.AsyncClient, admin_token: str):
+    res_users = await client.get(
+        "/api/v1/admin/users",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    users = res_users.json()
+    target_customer = next((u for u in users if u["role"] == "customer"), None)
+    assert target_customer is not None
+
+    user_id = target_customer["id"]
+    initial_status = target_customer["is_active"]
+
+    # Toggle active
+    res_toggle = await client.patch(
+        f"/api/v1/admin/users/{user_id}/toggle-active",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert res_toggle.status_code == 200
+    assert res_toggle.json()["is_active"] is not initial_status
+
+    # Toggle back to original
+    res_toggle_back = await client.patch(
+        f"/api/v1/admin/users/{user_id}/toggle-active",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert res_toggle_back.status_code == 200
+    assert res_toggle_back.json()["is_active"] is initial_status

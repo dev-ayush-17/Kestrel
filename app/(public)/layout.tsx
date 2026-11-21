@@ -9,7 +9,9 @@ export default function PublicLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <React.Suspense fallback={<div className="h-18 w-full border-b border-brand-border bg-brand-surface" />}>
+        <Navbar />
+      </React.Suspense>
       <main id="main-content" className="flex-1">
         {children}
       </main>

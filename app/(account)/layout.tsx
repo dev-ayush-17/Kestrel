@@ -10,10 +10,14 @@ export default function AccountLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col bg-brand-bg">
-      <Navbar />
+      <React.Suspense fallback={<div className="h-18 w-full border-b border-brand-border bg-brand-surface" />}>
+        <Navbar />
+      </React.Suspense>
       <main id="main-content" className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="flex flex-col lg:flex-row gap-8 items-start">
-          <AccountSidebar />
+          <React.Suspense fallback={<div className="w-full lg:w-64 h-72 rounded-lg bg-brand-surface" />}>
+            <AccountSidebar />
+          </React.Suspense>
           <div className="flex-1 min-w-0 w-full">
             {children}
           </div>

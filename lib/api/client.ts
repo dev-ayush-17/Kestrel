@@ -6,15 +6,30 @@ interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
 }
 
-// In-memory token management
+// In-memory token management with localStorage fallback
 let inMemoryAccessToken: string | null = null;
 
 export function setAccessToken(token: string | null) {
   inMemoryAccessToken = token;
+  if (typeof window !== "undefined") {
+    if (token) {
+      localStorage.setItem("kestrel_token", token);
+    } else {
+      localStorage.removeItem("kestrel_token");
+    }
+  }
 }
 
 export function getAccessToken(): string | null {
-  return inMemoryAccessToken;
+  if (inMemoryAccessToken) return inMemoryAccessToken;
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem("kestrel_token");
+    if (stored) {
+      inMemoryAccessToken = stored;
+      return stored;
+    }
+  }
+  return null;
 }
 
 let isRefreshing = false;
