@@ -12,59 +12,30 @@ from app.models.hotel import Hotel
 from app.models.review import Review
 from app.models.room import RoomType
 from app.models.user import User
+from app.schemas.admin import (
+    AdminDashboardResponse,
+    ModerateReviewActionRequest,
+    UserRoleUpdateRequest,
+    UserStatusUpdateRequest,
+)
 from app.schemas.booking import BookingRead, UpdateBookingStatusRequest
 from app.schemas.common import PaginatedResponse
 from app.schemas.hotel import HotelCreate, HotelRead, HotelUpdate
 from app.schemas.review import ModerateReviewRequest, ReviewRead
 from app.schemas.rooms import RoomTypeCreate, RoomTypeRead, RoomTypeUpdate
 from app.schemas.user import UserRead
+from app.services.admin_service import AdminService
 
-router = APIRouter(prefix="/admin", tags=["Admin"], dependencies=[Depends(require_admin)])
+router = APIRouter(prefix="/admin", tags=["Admin Control"], dependencies=[Depends(require_admin)])
 
 
-@router.get("/dashboard")
+@router.get("/dashboard", response_model=AdminDashboardResponse)
 async def get_admin_dashboard(db: AsyncSession = Depends(get_db)):
-    bookings_res = await db.execute(
-        select(Booking)
-        .options(selectinload(Booking.status_history))
-        .order_by(Booking.created_at.desc())
-    )
-    bookings = bookings_res.scalars().all()
+    """"
+    Computes real time occupancy, revenue, ADR and cohorts
+    """
 
-    total_bookings = len(bookings)
-    confirmed_bookings = [b for b in bookings if b.status in ("confirmed", "completed")]
-    total_rev = sum(b.price_breakdown.get("total_cents", 0) for b in confirmed_bookings)
-    guests_count = sum(b.adults + b.children for b in confirmed_bookings)
-
-    return {
-        "metrics": {
-            "total_revenue_cents": total_rev,
-            "total_bookings_count": total_bookings,
-            "confirmed_bookings_count": len(confirmed_bookings),
-            "active_guests_count": guests_count,
-            "occupancy_rate_percent": 78.4,
-            "average_daily_rate_cents": 48500,
-            "revenue_growth_percent": 18.2,
-        },
-        "revenue_chart": [
-            {"month": "May", "revenue_dollars": 28400, "bookings_count": 42},
-            {"month": "Jun", "revenue_dollars": 42100, "bookings_count": 65},
-            {"month": "Jul", "revenue_dollars": 58900, "bookings_count": 88},
-            {"month": "Aug", "revenue_dollars": 64200, "bookings_count": 94},
-            {"month": "Sep", "revenue_dollars": 51800, "bookings_count": 76},
-            {"month": "Oct", "revenue_dollars": 48300, "bookings_count": 71},
-        ],
-        "occupancy_chart": [
-            {"date": "Oct 18", "occupancy_rate": 72, "available_rooms": 8},
-            {"date": "Oct 19", "occupancy_rate": 76, "available_rooms": 7},
-            {"date": "Oct 20", "occupancy_rate": 85, "available_rooms": 4},
-            {"date": "Oct 21", "occupancy_rate": 82, "available_rooms": 5},
-            {"date": "Oct 22", "occupancy_rate": 91, "available_rooms": 2},
-            {"date": "Oct 23", "occupancy_rate": 88, "available_rooms": 3},
-            {"date": "Oct 24", "occupancy_rate": 84, "available_rooms": 4},
-        ],
-        "recent_bookings": [BookingRead.model_validate(b) for b in bookings[:5]],
-    }
+    return await AdminService.get_dashboard_data(db)
 
 
 @router.get("/bookings", response_model=PaginatedResponse[BookingRead])
@@ -273,6 +244,7 @@ async def moderate_review(
 
     review.moderation_status = payload.status
     await db.commit()
+    await AdminService.recalculate_hotel_reviews(db, review.hotel_id)
     await db.refresh(review)
     return ReviewRead.model_validate(review)
 
@@ -282,3 +254,41 @@ async def moderate_review(
 async def list_users(db: AsyncSession = Depends(get_db)):
     users = (await db.execute(select(User).order_by(User.created_at.desc()))).scalars().all()
     return [UserRead.model_validate(u) for u in users]
+
+
+@router.patch("/users/{user_id}/role", response_model= UserRead)
+async def update_user_role(
+    user_id: UUID,
+    payload: UserRoleUpdateRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Promote or demote user account role
+    """
+
+    user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    user.role = payload.role
+    await db.commit()
+    await db.refresh(user)
+    return UserRead.model_validate(user)
+
+
+@router.patch("/users/{user_id}/status", response_model=UserRead)
+async def update_user_status(
+    user_id: UUID,
+    payload: UserStatusUpdateRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Activate or deactivate user account, immediately invalidating active sessions."""
+    user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    user.is_active = payload.is_active
+    await db.commit()
+    await db.refresh(user)
+    return UserRead.model_validate(user)

@@ -95,3 +95,4 @@ async def test_change_password_and_login(client: httpx.AsyncClient):
     )
     assert success_login.status_code == 200
     assert "access_token" in success_login.json()
+
