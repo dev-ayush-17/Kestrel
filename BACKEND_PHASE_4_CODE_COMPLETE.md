@@ -853,3 +853,4 @@ async def test_concurrent_double_booking_prevention(client: httpx.AsyncClient, c
 ---
 
 With this blueprint, you are ready to implement the booking engine and customer account features with complete architectural confidence!
+

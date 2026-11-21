@@ -29,3 +29,4 @@ async def test_get_destination_by_slug(client: httpx.AsyncClient):
 async def test_get_destination_not_found(client: httpx.AsyncClient):
     response = await client.get("/api/v1/destinations/non-existent-city")
     assert response.status_code == 404
+

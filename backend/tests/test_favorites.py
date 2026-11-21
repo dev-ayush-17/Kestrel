@@ -32,3 +32,4 @@ async def test_favorites_workflow(client: httpx.AsyncClient, customer_token: str
     )
     assert del_res.status_code == 200
     assert del_res.json()["success"] is True
+

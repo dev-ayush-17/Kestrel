@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import List, Optional
 from uuid import UUID
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class GuestInfoSchema(BaseModel):
@@ -25,10 +25,10 @@ class CreateBookingRequest(BaseModel):
 
 
 class CancelBookingRequest(BaseModel):
-    reason: str
+    reason: str = Field(..., min_length=3, max_length=500)
 
 
-class ModifyDatesRequest(BaseModel):
+class ModifyBookingDatesRequest(BaseModel):
     new_check_in_date: date
     new_check_out_date: date
 

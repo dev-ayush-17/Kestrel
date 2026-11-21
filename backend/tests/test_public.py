@@ -28,3 +28,4 @@ async def test_contact_inquiry_validation(client: httpx.AsyncClient):
     }
     response = await client.post("/api/v1/contact", json=payload)
     assert response.status_code == 422
+

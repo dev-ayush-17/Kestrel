@@ -58,3 +58,4 @@ async def test_register_and_get_me(client: httpx.AsyncClient):
     )
     assert me_response.status_code == 200
     assert me_response.json()["email"] == unique_email
+

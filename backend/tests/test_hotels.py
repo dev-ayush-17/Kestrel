@@ -44,3 +44,4 @@ async def test_get_similar_hotels(client: httpx.AsyncClient):
     assert isinstance(similar, list)
     for h in similar:
         assert h["id"] != hotel_id
+

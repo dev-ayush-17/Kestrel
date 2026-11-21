@@ -37,3 +37,4 @@ async def test_admin_forbidden_for_customers(
         headers={"Authorization": f"Bearer {customer_token}"},
     )
     assert res.status_code == 403
+

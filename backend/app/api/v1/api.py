@@ -11,6 +11,7 @@ from app.api.v1.endpoints import (
     public,
     reviews,
     rooms,
+    account
 )
 
 api_router = APIRouter()
@@ -29,6 +30,7 @@ api_router.include_router(public.router)
 api_router.include_router(bookings.router)
 api_router.include_router(reviews.router)
 api_router.include_router(favorites.router)
+api_router.include_router(account.router)
 
 
 #Administrative Console
