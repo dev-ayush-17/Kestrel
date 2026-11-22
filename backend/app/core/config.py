@@ -23,6 +23,17 @@ class Settings(BaseSettings):
     DB_POOL_PRE_PING: bool = True
     DB_ECHO: bool = False
 
+    @property
+    def async_database_url(self) -> str:
+        url = self.DATABASE_URL
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif url.startswith("postgresql://") and not url.startswith("postgresql+asyncpg://"):
+            url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        if "sslmode=require" in url:
+            url = url.replace("sslmode=require", "ssl=require")
+        return url
+
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 

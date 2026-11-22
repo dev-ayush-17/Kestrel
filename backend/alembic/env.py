@@ -26,7 +26,7 @@ target_metadata = Base.metadata
 
 # Override URL dynamically from settings loaded from .env
 # In ConfigParser, '%' is an interpolation character, so percent-encoded characters like %40 must be escaped as %%40
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("%", "%%"))
+config.set_main_option("sqlalchemy.url", settings.async_database_url.replace("%", "%%"))
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

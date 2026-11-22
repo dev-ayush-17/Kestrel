@@ -9,7 +9,7 @@ from app.core.config import settings
 
 # Async PostgreSQL Engine initialized purely via configuration settings
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    settings.async_database_url,
     echo=settings.DB_ECHO,
     future=True,
     pool_size=settings.DB_POOL_SIZE,
