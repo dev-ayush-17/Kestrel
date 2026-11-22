@@ -56,3 +56,8 @@ __pycache__/
 # playwright
 test-results/
 playwright-report/
+
+
+# Phase Documentation & Execution Guides (Local only)
+BACKEND_PHASE_*.md
+PHASE_*.md

@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: kestrel_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: Kestrel_Stays
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: production_secure_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - kestrel_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d Kestrel_Stays"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kestrel_backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PROJECT_NAME: "Kestrel Stays API"
+      ENVIRONMENT: production
+      DATABASE_URL: "postgresql+asyncpg://postgres:production_secure_password@db:5432/Kestrel_Stays"
+      SECRET_KEY: "change_this_to_a_secure_random_64_char_key_in_production"
+      BACKEND_CORS_ORIGINS: '["http://localhost:3000", "http://127.0.0.1:3000"]'
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "alembic upgrade head &&
+             python -m scripts.seed &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: kestrel_frontend
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      PORT: 3000
+      NEXT_PUBLIC_API_BASE_URL: "http://localhost:8000/api/v1"
+      NEXT_PUBLIC_USE_MOCK_API: "false"
+    ports:
+      - "3000:3000"
+
+volumes:
+  kestrel_pgdata:
+    driver: local
